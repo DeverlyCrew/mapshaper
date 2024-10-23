@@ -1,10 +1,11 @@
-
-import utils from '../utils/mapshaper-utils';
-import { encodeString } from '../text/mapshaper-encodings';
+import utils from "../utils/mapshaper-utils";
+import { encodeString } from "../text/mapshaper-encodings";
 
 // Not a general-purpose deep copy function
 export function copyRecord(o) {
-  var o2 = {}, key, val;
+  var o2 = {},
+    key,
+    val;
   if (!o) return null;
   for (key in o) {
     if (o.hasOwnProperty(key)) {
@@ -23,15 +24,15 @@ export function copyRecord(o) {
 export function getValueType(val) {
   var type = null;
   if (utils.isString(val)) {
-    type = 'string';
+    type = "string";
   } else if (utils.isNumber(val)) {
-    type = 'number';
+    type = "number";
   } else if (utils.isBoolean(val)) {
-    type = 'boolean';
+    type = "boolean";
   } else if (utils.isDate(val)) {
-    type = 'date';
+    type = "date";
   } else if (utils.isObject(val)) {
-    type = 'object';
+    type = "object";
   }
   return type;
 }
@@ -46,21 +47,25 @@ export function fixInconsistentFields(records) {
 
 function findIncompleteFields(records) {
   var counts = {},
-      i, j, keys;
-  for (i=0; i<records.length; i++) {
+    i,
+    j,
+    keys;
+  for (i = 0; i < records.length; i++) {
     keys = Object.keys(records[i] || {});
-    for (j=0; j<keys.length; j++) {
+    for (j = 0; j < keys.length; j++) {
       counts[keys[j]] = (counts[keys[j]] | 0) + 1;
     }
   }
-  return Object.keys(counts).filter(function(k) {return counts[k] < records.length;});
+  return Object.keys(counts).filter(function (k) {
+    return counts[k] < records.length;
+  });
 }
 
 function patchMissingFields(records, fields) {
   var rec, i, j, f;
-  for (i=0; i<records.length; i++) {
+  for (i = 0; i < records.length; i++) {
     rec = records[i] || (records[i] = {});
-    for (j=0; j<fields.length; j++) {
+    for (j = 0; j < fields.length; j++) {
       f = fields[j];
       if (f in rec === false) {
         rec[f] = undefined;
@@ -70,13 +75,13 @@ function patchMissingFields(records, fields) {
 }
 
 export function fieldListContainsAll(list, fields) {
-  return list.indexOf('*') > -1 || utils.difference(fields, list).length === 0;
+  return list.indexOf("*") > -1 || utils.difference(fields, list).length === 0;
 }
 
 export function getColumnType(key, records) {
   var type = null,
-      rec;
-  for (var i=0, n=records.length; i<n; i++) {
+    rec;
+  for (var i = 0, n = records.length; i < n; i++) {
     rec = records[i];
     type = rec ? getValueType(rec[key]) : null;
     if (type) break;
@@ -85,7 +90,7 @@ export function getColumnType(key, records) {
 }
 
 export function deleteFields(table, test) {
-  table.getFields().forEach(function(name) {
+  table.getFields().forEach(function (name) {
     if (test(name)) {
       table.deleteField(name);
     }
@@ -103,24 +108,27 @@ export function isInvalidFieldName(f) {
 //
 export function getUniqFieldNames(fields, maxLen, encoding) {
   var used = {};
-  return fields.map(function(name) {
+  return fields.map(function (name) {
     var i = 0,
-        validName;
+      validName;
     do {
-      validName = encoding && encoding != 'ascii' ?
-        adjustEncodedFieldName(name, maxLen, i, encoding) :
-        adjustFieldName(name, maxLen, i);
+      validName =
+        encoding && encoding != "ascii"
+          ? adjustEncodedFieldName(name, maxLen, i, encoding)
+          : adjustFieldName(name, maxLen, i);
       i++;
-    } while ((validName in used) ||
+    } while (
+      validName in used ||
       // don't replace an existing valid field name with a truncated name
-      name != validName && utils.contains(fields, validName));
+      (name != validName && utils.contains(fields, validName))
+    );
     used[validName] = true;
     return validName;
   });
 }
 
 export function getFieldValues(records, field) {
-  return records.map(function(rec) {
+  return records.map(function (rec) {
     return rec ? rec[field] : undefined;
   });
 }
@@ -128,7 +136,7 @@ export function getFieldValues(records, field) {
 export function getUniqFieldValues(records, field) {
   var index = {};
   var values = [];
-  records.forEach(function(rec) {
+  records.forEach(function (rec) {
     var val = rec[field];
     if (val in index === false) {
       index[val] = true;
@@ -147,7 +155,7 @@ function adjustFieldName(name, maxLen, i) {
   } else {
     suff = String(i);
     if (suff.length == 1) {
-      suff = '_' + suff;
+      suff = "_" + suff;
     }
     name2 = name.substr(0, maxLen - suff.length) + suff;
   }
@@ -156,19 +164,20 @@ function adjustFieldName(name, maxLen, i) {
 
 // Truncate and/or uniqify a name (if relevant params are present)
 function adjustEncodedFieldName(name, maxLen, i, encoding) {
-  var suff = i ? String(i) : '';
-  var name2 = name + suff;
-  var buf = encodeString(name2, encoding);
-  if (buf.length > (maxLen || 256)) {
-    name = name.substr(0, name.length - 1);
-    return adjustEncodedFieldName(name, maxLen, i, encoding);
-  }
-  return name2;
+  throw "deleted by simon!";
+  // var suff = i ? String(i) : '';
+  // var name2 = name + suff;
+  // var buf = encodeString(name2, encoding);
+  // if (buf.length > (maxLen || 256)) {
+  //   name = name.substr(0, name.length - 1);
+  //   return adjustEncodedFieldName(name, maxLen, i, encoding);
+  // }
+  // return name2;
 }
 
 export function applyFieldOrder(arr, option) {
-  if (option == 'ascending') {
-    arr.sort(function(a, b) {
+  if (option == "ascending") {
+    arr.sort(function (a, b) {
       return a.toLowerCase() < b.toLowerCase() ? -1 : 1;
     });
   }
@@ -176,7 +185,7 @@ export function applyFieldOrder(arr, option) {
 }
 
 export function getFirstNonEmptyRecord(records) {
-  for (var i=0, n=records ? records.length : 0; i<n; i++) {
+  for (var i = 0, n = records ? records.length : 0; i < n; i++) {
     if (records[i]) return records[i];
   }
   return null;
@@ -187,56 +196,3 @@ export function findFieldNames(records, order) {
   var names = first ? Object.keys(first) : [];
   return applyFieldOrder(names, order);
 }
-
-
-export function parseUnknownType(str) {
-  var val = getInputParser('number')(str);
-  if (val !== null) return val;
-  val = getInputParser('object')(str);
-  if (val !== null) return val;
-  return str;
-}
-
-// used by GUI data editing
-export function getInputParser(type) {
-  return inputParsers[type || 'multiple'];
-}
-
-var inputParsers = {
-  date: function(raw) {
-    var d = new Date(raw);
-    return isNaN(+d) ? null : d;
-  },
-  string: function(raw) {
-    return raw;
-  },
-  number: function(raw) {
-    var val = Number(raw);
-    if (raw == 'NaN') {
-      val = NaN;
-    } else if (isNaN(val)) {
-      val = null;
-    }
-    return val;
-  },
-  object: function(raw) {
-    var val = null;
-    try {
-      val = JSON.parse(raw);
-    } catch(e) {}
-    return val;
-  },
-  boolean: function(raw) {
-    var val = null;
-    if (raw == 'true') {
-      val = true;
-    } else if (raw == 'false') {
-      val = false;
-    }
-    return val;
-  },
-  multiple: function(raw) {
-    var val = Number(raw);
-    return isNaN(val) ? raw : val;
-  }
-};

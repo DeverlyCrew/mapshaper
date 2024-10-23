@@ -1,34 +1,33 @@
-import { nodeResolve } from '@rollup/plugin-node-resolve';
-import json from '@rollup/plugin-json';
+import { nodeResolve } from "@rollup/plugin-node-resolve";
 
-const onBundle = {
-  name: 'onbundle',
-  writeBundle() {
-    // copy mapshaper.js to www/
-    const fs = require('fs');
-    const path = require('path');
-    const src = path.join(__dirname, 'mapshaper.js');
-    const dest = path.join(__dirname, 'www/mapshaper.js');
-    fs.writeFileSync(dest, fs.readFileSync(src));
-  }
-};
+import { terser } from "rollup-plugin-terser";
+import compiler from "@ampproject/rollup-plugin-closure-compiler";
 
-export default [{
-  treeshake: false,
-  input: 'src/gui/gui.mjs',
-  output: [{
-    strict: false,
-    format: 'iife',
-    file: 'www/mapshaper-gui.js'
-  }]
-}, {
-  treeshake: true,
-  context: 'null', // prevent a Rollup warning from msgpack
-  input: 'src/mapshaper.mjs',
-  output: [{
-    strict: false,
-    format: 'iife',
-    file: 'mapshaper.js'
-  }],
-  plugins: [onBundle, nodeResolve(), json()]
-}];
+export default [
+  {
+    treeshake: true,
+    input: "src/mapshaper.simplify.js",
+    output: [
+      {
+        format: "esm",
+        file: "mapshaper.simplify.mjs",
+        intro: "var global = {}",
+      },
+    ],
+    plugins: [
+      nodeResolve(),
+      compiler({}),
+      terser({
+        module: true,
+        keep_fnames: true,
+        keep_classnames: true,
+        mangle: false,
+        compress: {
+          hoist_funs: true,
+          hoist_props: false,
+          passes: 3,
+        },
+      }),
+    ],
+  },
+];
