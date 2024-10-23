@@ -1,6 +1,6 @@
 {
-  "name": "mapshaper",
-  "version": "0.6.101",
+  "name": "mapshaper-simplify",
+  "version": "2.0.2",
   "description": "A tool for editing vector datasets for mapping and GIS.",
   "keywords": [
     "shapefile",
